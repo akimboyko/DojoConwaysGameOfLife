@@ -35,5 +35,37 @@ namespace ConwaysGameOfLife
 
             return ImmutableList.Create(result);
         }
+
+        public static ImmutableSortedSet<Cell> Next(ImmutableSortedSet<Cell> generation)
+        {
+            return ImmutableSortedSet.Create(
+                generation
+                    .SelectMany(cell =>
+                        new[]
+                            {
+                                new { alive = false, x = cell.X - 1, y = cell.Y - 1, density = 1 },
+                                new { alive = false, x = cell.X + 0, y = cell.Y - 1, density = 1 },
+                                new { alive = false, x = cell.X + 1, y = cell.Y - 1, density = 1 },
+
+                                new { alive = false, x = cell.X - 1, y = cell.Y + 0, density = 1 },
+                                new { alive = true,  x = cell.X + 0, y = cell.Y + 0, density = 0 },
+                                new { alive = false, x = cell.X + 1, y = cell.Y + 0, density = 1 },
+
+                                new { alive = false, x = cell.X - 1, y = cell.Y + 1, density = 1 },
+                                new { alive = false, x = cell.X + 0, y = cell.Y + 1, density = 1 },
+                                new { alive = false, x = cell.X + 1, y = cell.Y + 1, density = 1 }
+                            })
+                    .GroupBy(position => new { position.x, position.y })
+                    .Select(probability =>
+                        new
+                            {
+                                alive = probability.Any(each => each.alive),
+                                x = probability.First().x,
+                                y = probability.First().y,
+                                density = probability.Sum(each => each.density)
+                            })
+                    .Where(probability => probability.density == 3 || (probability.alive && probability.density == 2))
+                    .Select(probability => new Cell(probability.x, probability.y)));
+        }
     }
 }

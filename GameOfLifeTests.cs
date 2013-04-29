@@ -66,7 +66,6 @@ namespace ConwaysGameOfLife
                     new Cell(x: 3, y: 1)
                 });
 
-
             int width;
             int height;
             var inputArray = Generation.Convert(blinkerPeriod2, out width, out height);
@@ -96,7 +95,6 @@ namespace ConwaysGameOfLife
                     new Cell(x: 3, y: 4)
                 });
 
-
             int width;
             int height;
             var inputArray = Generation.Convert(boat, out width, out height);
@@ -113,6 +111,45 @@ namespace ConwaysGameOfLife
                         0, 0, 0, 1, 0, 0,
                         0, 0, 0, 0, 0, 0
                     });
+        }
+
+        [Test]
+        public void GenerationOscillators_NextGenerationOfCells_BlinkerPeriod2Gen2()
+        {
+            var blinkerPeriod2Step1 = ImmutableSortedSet.Create(new[]
+                {
+                    new Cell(x: 0, y: 1),
+                    new Cell(x: 1, y: 1),
+                    new Cell(x: 2, y: 1)
+                });
+
+            var blinkerPeriod2Step2 = Generation.Next(blinkerPeriod2Step1);
+
+            blinkerPeriod2Step2.Should().BeEquivalentTo(new[]
+                {
+                    new Cell(x: 1, y: 0),
+                    new Cell(x: 1, y: 1),
+                    new Cell(x: 1, y: 2)
+                });
+        }
+
+        [Test]
+        public void GenerationStillLifes_NextGenerationOfCells_Boat()
+        {
+            var boat = ImmutableSortedSet.Create(new[]
+                {
+                    new Cell(x: 2, y: 1),
+                    new Cell(x: 3, y: 1),
+                    new Cell(x: 1, y: 2),
+                    new Cell(x: 4, y: 2),
+                    new Cell(x: 2, y: 3),
+                    new Cell(x: 4, y: 3),
+                    new Cell(x: 3, y: 4)
+                });
+
+            var stillLife = Generation.Next(boat);
+
+            stillLife.Should().BeEquivalentTo(boat);
         }
     }
 }
