@@ -64,7 +64,9 @@ namespace ConwaysGameOfLife
                                 y = probability.First().y,
                                 density = probability.Sum(each => each.density)
                             })
-                    .Where(probability => probability.density == 3 || (probability.alive && probability.density == 2))
+                    .Where(probability => 
+                                probability.density == 3
+                                || (probability.alive && probability.density == 2))
                     .Select(probability => new Cell(probability.x, probability.y)));
         }
     }
