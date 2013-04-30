@@ -51,8 +51,8 @@ namespace ConwaysGameOfLife
                     .Select(probability => new Cell(probability.x, probability.y)));
         }
 
-        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration, 
-                                        ImmutableHashSet<Cell> previousGeneration, 
+        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
+                                        ImmutableQueue<ImmutableHashSet<Cell>> previousGenerations, 
                                         out GameStatus status)
         {
             bool result;
@@ -62,8 +62,7 @@ namespace ConwaysGameOfLife
                 result = true;
                 status = GameStatus.GenerationIsEmpty;
             }
-            else if (previousGeneration != null
-                        && currentGeneration.SetEquals(previousGeneration))
+            else if (previousGenerations.Any(currentGeneration.SetEquals))
             {
                 result = true;
                 status = GameStatus.StillLife;
@@ -77,17 +76,22 @@ namespace ConwaysGameOfLife
             return result;
         }
 
+        // INFO: RoslynCTP has limitation related to enum, that is why this method exists
         public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
-                                        ImmutableHashSet<Cell> previousGeneration, 
+                                        ImmutableQueue<ImmutableHashSet<Cell>> previousGeneration, 
                                         out string description)
         {
             GameStatus status;
-
             var result = IsEndOfGame(currentGeneration, previousGeneration, out status);
 
             description = status.ToString();
 
             return result;
+        }
+
+        public static ImmutableQueue<ImmutableHashSet<Cell>> AddRecentGenerationToHistoryQueue(ImmutableHashSet<Cell> currentGeneration, ImmutableQueue<ImmutableHashSet<Cell>> generationQueue)
+        {
+            return generationQueue;
         }
 
         public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, 

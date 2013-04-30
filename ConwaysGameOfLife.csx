@@ -9,7 +9,7 @@ using ConwaysGameOfLife;
 
 const int width = 20;
 const int height = 20;
-const int aliveRatio = 2;
+const int aliveRatio = 10;
 
 var randomGenerator = new Random(DateTime.Now.Millisecond);
 
