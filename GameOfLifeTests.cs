@@ -57,7 +57,7 @@ namespace ConwaysGameOfLife
         }
 
         [Test]
-        public void GenerationBlinkerPeriod2_ConvertGenerationOfCells_InputArray()
+        public void GenerationBlinkerPeriod2_ConvertGenerationOfCells_ResultArray()
         {
             var blinkerPeriod2 = ImmutableHashSet.Create(new[]
                 {
@@ -68,11 +68,11 @@ namespace ConwaysGameOfLife
 
             int width;
             int height;
-            var inputArray = Generation.Convert(blinkerPeriod2, out width, out height);
+            var resultArray = Generation.Convert(blinkerPeriod2, out width, out height);
 
             width.Should().Be(5);
             height.Should().Be(3);
-            inputArray.Should().Equal(
+            resultArray.Should().Equal(
                 new[]
                 {
                     0, 0, 0, 0, 0,
@@ -82,7 +82,7 @@ namespace ConwaysGameOfLife
         }
 
         [Test]
-        public void GenerationBoat_ConvertGenerationOfCells_InputArray()
+        public void GenerationBoat_ConvertGenerationOfCells_ResultArray()
         {
             var boat = ImmutableHashSet.Create(new[]
                 {
@@ -97,11 +97,11 @@ namespace ConwaysGameOfLife
 
             int width;
             int height;
-            var inputArray = Generation.Convert(boat, out width, out height);
+            var resultArray = Generation.Convert(boat, out width, out height);
 
             width.Should().Be(6);
             height.Should().Be(6);
-            inputArray.Should().Equal(
+            resultArray.Should().Equal(
                 new[]
                     {
                         0, 0, 0, 0, 0, 0,
@@ -110,6 +110,80 @@ namespace ConwaysGameOfLife
                         0, 0, 1, 0, 1, 0,
                         0, 0, 0, 1, 0, 0,
                         0, 0, 0, 0, 0, 0
+                    });
+        }
+
+        [Test]
+        public void GenerationWithNegativePositions_ConvertGenerationOfCells_ResultArray()
+        {
+            var blinkerPeriod2 = ImmutableHashSet.Create(new[]
+                {
+                    new Cell(x: -1, y: 1),
+                    new Cell(x: -2, y: 1),
+                    new Cell(x: -3, y: 1)
+                });
+
+            int width;
+            int height;
+            var resultArray = Generation.Convert(blinkerPeriod2, out width, out height);
+
+            width.Should().Be(5);
+            height.Should().Be(3);
+            resultArray.Should().Equal(
+                new[]
+                {
+                    0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0,
+                    0, 0, 0, 0, 0
+                });
+        }
+
+        [Test]
+        public void GenerationBlinkerPeriod2_ConvertGenerationOfCells_StringArray()
+        {
+            var blinkerPeriod2 = ImmutableHashSet.Create(new[]
+                {
+                    new Cell(x: 1, y: 1),
+                    new Cell(x: 2, y: 1),
+                    new Cell(x: 3, y: 1)
+                });
+
+            var resultArray = Generation.ConvertToString(blinkerPeriod2);
+
+            resultArray.Should().Equal(
+                new[]
+                {
+                    @"     ",
+                    @" *** ",
+                    @"     "
+                });
+        }
+
+        [Test]
+        public void GenerationBoat_ConvertGenerationOfCells_StringArray()
+        {
+            var boat = ImmutableHashSet.Create(new[]
+                {
+                    new Cell(x: 2, y: 1),
+                    new Cell(x: 3, y: 1),
+                    new Cell(x: 1, y: 2),
+                    new Cell(x: 4, y: 2),
+                    new Cell(x: 2, y: 3),
+                    new Cell(x: 4, y: 3),
+                    new Cell(x: 3, y: 4)
+                });
+
+            var resultArray = Generation.ConvertToString(boat);
+
+            resultArray.Should().Equal(
+                new[]
+                    {
+                        @"      ",
+                        @"  **  ",
+                        @" *  * ",
+                        @"  * * ",
+                        @"   *  ",
+                        @"      "
                     });
         }
 
