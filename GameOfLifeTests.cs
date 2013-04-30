@@ -59,7 +59,7 @@ namespace ConwaysGameOfLife
         [Test]
         public void GenerationBlinkerPeriod2_ConvertGenerationOfCells_InputArray()
         {
-            var blinkerPeriod2 = ImmutableSortedSet.Create(new[]
+            var blinkerPeriod2 = ImmutableHashSet.Create(new[]
                 {
                     new Cell(x: 1, y: 1),
                     new Cell(x: 2, y: 1),
@@ -84,7 +84,7 @@ namespace ConwaysGameOfLife
         [Test]
         public void GenerationBoat_ConvertGenerationOfCells_InputArray()
         {
-            var boat = ImmutableSortedSet.Create(new[]
+            var boat = ImmutableHashSet.Create(new[]
                 {
                     new Cell(x: 2, y: 1),
                     new Cell(x: 3, y: 1),
@@ -116,7 +116,7 @@ namespace ConwaysGameOfLife
         [Test]
         public void GenerationOscillators_NextGenerationOfCells_BlinkerPeriod2Gen2()
         {
-            var blinkerPeriod2Step1 = ImmutableSortedSet.Create(new[]
+            var blinkerPeriod2Step1 = ImmutableHashSet.Create(new[]
                 {
                     new Cell(x: 0, y: 1),
                     new Cell(x: 1, y: 1),
@@ -136,7 +136,7 @@ namespace ConwaysGameOfLife
         [Test]
         public void GenerationStillLifes_NextGenerationOfCells_Boat()
         {
-            var boat = ImmutableSortedSet.Create(new[]
+            var boat = ImmutableHashSet.Create(new[]
                 {
                     new Cell(x: 2, y: 1),
                     new Cell(x: 3, y: 1),

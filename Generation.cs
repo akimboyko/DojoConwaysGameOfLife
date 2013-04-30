@@ -6,9 +6,9 @@ namespace ConwaysGameOfLife
 {
     public static class Generation
     {
-        public static ImmutableSortedSet<Cell> Init(int width, int height, IEnumerable<int> cells)
+        public static ImmutableHashSet<Cell> Init(int width, int height, IEnumerable<int> cells)
         {
-            return ImmutableSortedSet.Create(
+            return ImmutableHashSet.Create(
                 Enumerable.Range(0, width * height)
                           .Select(cells.ElementAtOrDefault)
                           .Select((value, index) => new { index, value })
@@ -16,7 +16,7 @@ namespace ConwaysGameOfLife
                           .Select(cell => new Cell(x: cell.index % width, y: cell.index / width)));
         }
 
-        public static ImmutableList<int> Convert(ImmutableSortedSet<Cell> generation, out int width, out int height)
+        public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, out int width, out int height)
         {
             var dimentions = new
                 {
@@ -36,9 +36,9 @@ namespace ConwaysGameOfLife
             return ImmutableList.Create(result);
         }
 
-        public static ImmutableSortedSet<Cell> Next(ImmutableSortedSet<Cell> generation)
+        public static ImmutableHashSet<Cell> Next(ImmutableHashSet<Cell> generation)
         {
-            return ImmutableSortedSet.Create(
+            return ImmutableHashSet.Create(
                 generation
                     .SelectMany(cell =>
                         new[]
