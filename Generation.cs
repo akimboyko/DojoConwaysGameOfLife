@@ -51,7 +51,47 @@ namespace ConwaysGameOfLife
                     .Select(probability => new Cell(probability.x, probability.y)));
         }
 
-        public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, out int width, out int height)
+        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration, 
+                                        ImmutableHashSet<Cell> previousGeneration, 
+                                        out GameStatus status)
+        {
+            bool result;
+
+            if (currentGeneration.IsEmpty)
+            {
+                result = true;
+                status = GameStatus.GenerationIsEmpty;
+            }
+            else if (previousGeneration != null
+                        && currentGeneration.SetEquals(previousGeneration))
+            {
+                result = true;
+                status = GameStatus.StillLife;
+            }
+            else
+            {
+                result = false;
+                status = GameStatus.Continue;
+            }
+
+            return result;
+        }
+
+        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
+                                        ImmutableHashSet<Cell> previousGeneration, 
+                                        out string description)
+        {
+            GameStatus status;
+
+            var result = IsEndOfGame(currentGeneration, previousGeneration, out status);
+
+            description = status.ToString();
+
+            return result;
+        }
+
+        public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, 
+                                                    out int width, out int height)
         {
             var dimentions = new
                 {
@@ -64,9 +104,14 @@ namespace ConwaysGameOfLife
             var result = new int[dimentions.width * dimentions.height];
 
             generation
+                .Select(cell => new
+                                {
+                                    relativeX = cell.X - dimentions.startX,
+                                    relativeY = cell.Y - dimentions.startY 
+                                })
+                .Select(position => position.relativeX + (position.relativeY * dimentions.width))
                 .ToList()
-                .ForEach(cell => result[(cell.X - dimentions.startX)
-                                        + ((cell.Y - dimentions.startY) * dimentions.width)] = 1);
+                .ForEach(offset => result[offset] = 1);
 
             width = dimentions.width;
             height = dimentions.height;
@@ -84,11 +129,13 @@ namespace ConwaysGameOfLife
 
             output.ForEach(cell => stringBuilder.Append(cell == 0 ? ' ' : '*'));
 
-            var s = stringBuilder.ToString();
+            var sequenceOfEmptinessAndStarts = stringBuilder.ToString();
 
             return ImmutableList.Create(
                         Enumerable.Range(0, height)
-                            .Select(index => s.Substring(index * width, width)));
+                            .Select(index => sequenceOfEmptinessAndStarts.Substring(index * width, width)));
         }
     }
+
+    public enum GameStatus { Continue, GenerationIsEmpty, StillLife }
 }

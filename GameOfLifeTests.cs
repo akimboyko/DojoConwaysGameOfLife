@@ -225,5 +225,165 @@ namespace ConwaysGameOfLife
 
             stillLife.Should().BeEquivalentTo(boat);
         }
+
+        [Test]
+        public void GenerationEmpty_IsEndOfGame_Archived()
+        {
+            var previousAlmostDeadGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 0, 0,
+                                0, 1, 0,
+                                0, 0, 0
+                            });
+
+            var currentEmptyGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0
+                            });
+
+            GameStatus status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentEmptyGeneration, previousAlmostDeadGeneration, out status);
+
+            isEndOfGame.Should().BeTrue();
+            status.Should().Be(GameStatus.GenerationIsEmpty);
+        }
+
+        [Test]
+        public void GenerationBlock_IsEndOfGame_StillLifesDetected()
+        {
+            var previousBlockGeneration = Generation.Init(
+                width: 4, height: 4,
+                cells: new[]
+                            {
+                                0, 0, 0, 0,
+                                0, 1, 1, 0,
+                                0, 1, 1, 0,
+                                0, 0, 0, 0
+                            });
+
+            var currentBlockGeneration = Generation.Init(
+                width: 4, height: 4,
+                cells: new[]
+                            {
+                                0, 0, 0, 0,
+                                0, 1, 1, 0,
+                                0, 1, 1, 0,
+                                0, 0, 0, 0
+                            });
+
+            GameStatus status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentBlockGeneration, previousBlockGeneration, out status);
+
+            isEndOfGame.Should().BeTrue();
+            status.Should().Be(GameStatus.StillLife);
+        }
+
+        [Test]
+        public void GenerationBeehive_IsEndOfGame_StillLifesDetected()
+        {
+            var previousBeehiveGeneration = Generation.Init(
+                width: 6, height: 5,
+                cells: new[]
+                            {
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 1, 1, 0, 0,
+                                0, 1, 0, 0, 1, 0,
+                                0, 0, 1, 1, 0, 0,
+                                0, 0, 0, 0, 0, 0
+                            });
+
+            var currentBeehiveGeneration = Generation.Init(
+                width: 6, height: 5,
+                cells: new[]
+                            {
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 1, 1, 0, 0,
+                                0, 1, 0, 0, 1, 0,
+                                0, 0, 1, 1, 0, 0,
+                                0, 0, 0, 0, 0, 0
+                            });
+
+            GameStatus status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentBeehiveGeneration, previousBeehiveGeneration, out status);
+
+            isEndOfGame.Should().BeTrue();
+            status.Should().Be(GameStatus.StillLife);
+        }
+
+        [Test]
+        public void GenerationOscillatorBlinkerPeriod2_IsEndOfGame_Continue()
+        {
+            var previousOscillatorGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 0, 0,
+                                1, 1, 1,
+                                0, 0, 0
+                            });
+
+            var currentOscillatorGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 1, 0,
+                                0, 1, 0,
+                                0, 1, 0
+                            });
+
+            GameStatus status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousOscillatorGeneration, out status);
+
+            isEndOfGame.Should().BeFalse();
+            status.Should().Be(GameStatus.Continue);
+        }
+
+        [Test]
+        public void GenerationFirstGeneration_IsEndOfGame_Continue()
+        {
+            ImmutableHashSet<Cell> previousNullGeneration = null;
+
+            var currentOscillatorGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 1, 0,
+                                0, 1, 0,
+                                0, 1, 0
+                            });
+
+            GameStatus status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousNullGeneration, out status);
+
+            isEndOfGame.Should().BeFalse();
+            status.Should().Be(GameStatus.Continue);
+        }
+
+        [Test]
+        public void GenerationFirstGeneration_IsEndOfGame_StringStatusContinue()
+        {
+            ImmutableHashSet<Cell> previousNullGeneration = null;
+
+            var currentOscillatorGeneration = Generation.Init(
+                width: 3, height: 3,
+                cells: new[]
+                            {
+                                0, 1, 0,
+                                0, 1, 0,
+                                0, 1, 0
+                            });
+
+            string status;
+            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousNullGeneration, out status);
+
+            isEndOfGame.Should().BeFalse();
+            status.Should().Be("Continue");
+        }
     }
 }

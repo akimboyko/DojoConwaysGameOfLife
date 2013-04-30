@@ -7,18 +7,21 @@ using System.Linq;
 using System.Threading;
 using ConwaysGameOfLife;
 
-const int width = 10;
-const int height = 10;
-const int aliveRatio = 3;
+const int width = 20;
+const int height = 20;
+const int aliveRatio = 2;
 
 var randomGenerator = new Random(DateTime.Now.Millisecond);
 
-var generation = Generation.Init(
+ImmutableHashSet<Cell> currentGeneration = 
+						Generation.Init(
 							width: width, height: height,
 							cells: Enumerable
 										.Range(0, width * height)
-										.Select(n => randomGenerator.Next() % aliveRatio != 0 ? 0 : 1)
+										.Select(n => randomGenerator.Next() % aliveRatio == 0 ? 1 : 0)
 										.ToArray());
+
+ImmutableHashSet<Cell> previousGeneration = null;
 
 bool continueProcessing = true;
 
@@ -30,18 +33,23 @@ do
 
 		try
 		{
-			generation = Generation.Next(generation);
+			previousGeneration = currentGeneration;
+			currentGeneration = Generation.Next(previousGeneration);
 
-			if (generation.IsEmpty)
+			string status;
+
+			var endOfGame = 
+				Generation.IsEndOfGame(currentGeneration, previousGeneration, out status);
+
+			if (endOfGame)
 			{
-                Console.WriteLine("End of game: generation is empty");
+				continueProcessing = false;
+                Console.WriteLine("End of game: {0}", status);
 			}
 			else
 			{
-				resultArray = Generation.ConvertToString(generation);
+				resultArray = Generation.ConvertToString(currentGeneration);
 			}
-
-			continueProcessing = !generation.IsEmpty;
 		}
 		catch (Exception ex)
 		{
