@@ -13,8 +13,6 @@ const int aliveRatio = 4;
 
 var randomGenerator = new Random(DateTime.Now.Millisecond);
 
-var generationQueue = ImmutableQueue.Create<ImmutableHashSet<Cell>>();
-
 ImmutableHashSet<Cell> currentGeneration = 
 						Generation.Init(
 							width: width, height: height,
@@ -24,6 +22,8 @@ ImmutableHashSet<Cell> currentGeneration =
 										.ToArray());
 
 ImmutableHashSet<Cell> previousGeneration = null;
+
+var generationQueue = ImmutableQueue.Create<ImmutableHashSet<Cell>>();
 
 bool continueProcessing = true;
 
@@ -45,7 +45,6 @@ do
 
 			if (!continueProcessing)
 			{
-				continueProcessing = false;
                 Console.WriteLine("End of game: {0}", endOfGame);
 				break;
 			}
