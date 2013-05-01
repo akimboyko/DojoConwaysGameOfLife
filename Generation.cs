@@ -62,10 +62,17 @@ namespace ConwaysGameOfLife
                 result = true;
                 status = GameStatus.GenerationIsEmpty;
             }
-            else if (previousGenerations.Any(currentGeneration.SetEquals))
+            else if (previousGenerations.Any()
+                        && previousGenerations.Last().SetEquals(currentGeneration))
             {
                 result = true;
                 status = GameStatus.StillLife;
+            }
+            else if (previousGenerations.Any() 
+                        && previousGenerations.Any(currentGeneration.SetEquals))
+            {
+                result = true;
+                status = GameStatus.OscillatorDetected;
             }
             else
             {
@@ -91,7 +98,12 @@ namespace ConwaysGameOfLife
 
         public static ImmutableQueue<ImmutableHashSet<Cell>> AddRecentGenerationToHistoryQueue(ImmutableHashSet<Cell> currentGeneration, ImmutableQueue<ImmutableHashSet<Cell>> generationQueue)
         {
-            return generationQueue;
+            while (generationQueue.Count() > 4)
+            {
+                generationQueue = generationQueue.Dequeue();
+            }
+
+            return generationQueue.Enqueue(currentGeneration);
         }
 
         public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, 
@@ -141,5 +153,11 @@ namespace ConwaysGameOfLife
         }
     }
 
-    public enum GameStatus { Continue, GenerationIsEmpty, StillLife }
+    public enum GameStatus
+    {
+        Continue,
+        GenerationIsEmpty,
+        StillLife,
+        OscillatorDetected
+    }
 }

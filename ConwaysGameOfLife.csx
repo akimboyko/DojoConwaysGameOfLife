@@ -9,9 +9,11 @@ using ConwaysGameOfLife;
 
 const int width = 20;
 const int height = 20;
-const int aliveRatio = 10;
+const int aliveRatio = 3;
 
 var randomGenerator = new Random(DateTime.Now.Millisecond);
+
+var generationQueue = ImmutableQueue.Create<ImmutableHashSet<Cell>>();
 
 ImmutableHashSet<Cell> currentGeneration = 
 						Generation.Init(
@@ -39,17 +41,17 @@ do
 			string status;
 
 			var endOfGame = 
-				Generation.IsEndOfGame(currentGeneration, previousGeneration, out status);
+				Generation.IsEndOfGame(currentGeneration, generationQueue, out status);
 
 			if (endOfGame)
 			{
 				continueProcessing = false;
                 Console.WriteLine("End of game: {0}", status);
+				break;
 			}
-			else
-			{
-				resultArray = Generation.ConvertToString(currentGeneration);
-			}
+		
+			generationQueue = Generation.AddRecentGenerationToHistoryQueue(currentGeneration, generationQueue);
+			resultArray = Generation.ConvertToString(currentGeneration);
 		}
 		catch (Exception ex)
 		{
