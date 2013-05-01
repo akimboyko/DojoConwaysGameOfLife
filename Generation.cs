@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,8 @@ namespace ConwaysGameOfLife
         {
             return ImmutableHashSet.Create(
                 generation
+                    .AsParallel()
+                    .AsUnordered()
                     .SelectMany(cell =>
                         new[]
                             {
@@ -48,73 +51,63 @@ namespace ConwaysGameOfLife
                     .Where(probability =>
                                 probability.density == 3
                                 || (probability.alive && probability.density == 2))
-                    .Select(probability => new Cell(probability.x, probability.y)));
+                    .Select(probability => new Cell(probability.x, probability.y))
+                    .AsSequential());
         }
 
-        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
-                                        ImmutableQueue<ImmutableHashSet<Cell>> previousGenerations, 
-                                        out GameStatus status)
+        private static readonly
+            IImmutableList<Func<ImmutableHashSet<Cell>, ImmutableQueue<ImmutableHashSet<Cell>>, GameStatus>>
+            EndOfGameRules = ImmutableList.Create(
+                new Func<ImmutableHashSet<Cell>, ImmutableQueue<ImmutableHashSet<Cell>>, GameStatus>[]
+                    {
+                        (currentGeneration, previousGenerations) => 
+                            currentGeneration.IsEmpty
+                                ? GameStatus.GenerationIsEmpty
+                                : GameStatus.Continue,
+
+                        (currentGeneration, previousGenerations) => 
+                            previousGenerations.Any()
+                            && previousGenerations.Last().SetEquals(currentGeneration)
+                                ? GameStatus.StillLife
+                                : GameStatus.Continue,
+
+                        (currentGeneration, previousGenerations) => 
+                            previousGenerations.Any(currentGeneration.SetEquals)
+                            && previousGenerations.Any(currentGeneration.SetEquals)
+                                ? GameStatus.OscillatorDetected
+                                : GameStatus.Continue
+                    });
+
+        public static GameStatus IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
+                                        ImmutableQueue<ImmutableHashSet<Cell>> previousGenerations)
         {
-            bool result;
-
-            if (currentGeneration.IsEmpty)
-            {
-                result = true;
-                status = GameStatus.GenerationIsEmpty;
-            }
-            else if (previousGenerations.Any()
-                        && previousGenerations.Last().SetEquals(currentGeneration))
-            {
-                result = true;
-                status = GameStatus.StillLife;
-            }
-            else if (previousGenerations.Any() 
-                        && previousGenerations.Any(currentGeneration.SetEquals))
-            {
-                result = true;
-                status = GameStatus.OscillatorDetected;
-            }
-            else
-            {
-                result = false;
-                status = GameStatus.Continue;
-            }
-
-            return result;
-        }
-
-        // INFO: RoslynCTP has limitation related to enum, that is why this method exists
-        public static bool IsEndOfGame(ImmutableHashSet<Cell> currentGeneration,
-                                        ImmutableQueue<ImmutableHashSet<Cell>> previousGeneration, 
-                                        out string description)
-        {
-            GameStatus status;
-            var result = IsEndOfGame(currentGeneration, previousGeneration, out status);
-
-            description = status.ToString();
-
-            return result;
+            return
+                EndOfGameRules
+                    .Select(criteria => criteria(currentGeneration, previousGenerations))
+                    .FirstOrDefault(status => status != GameStatus.Continue);
         }
 
         public static ImmutableQueue<ImmutableHashSet<Cell>> AddRecentGenerationToHistoryQueue(ImmutableHashSet<Cell> currentGeneration, ImmutableQueue<ImmutableHashSet<Cell>> generationQueue)
         {
-            while (generationQueue.Count() > 4)
-            {
-                generationQueue = generationQueue.Dequeue();
-            }
-
-            return generationQueue.Enqueue(currentGeneration);
+            var queueItemsList = generationQueue.Take(4).ToList();
+            queueItemsList.Add(currentGeneration);
+            return ImmutableQueue.Create(queueItemsList.AsEnumerable());
         }
 
         public static ImmutableList<int> Convert(ImmutableHashSet<Cell> generation, 
                                                     out int width, out int height)
         {
+            var minX = generation.Min(cell => cell.X);
+            var minY = generation.Min(cell => cell.Y);
+            var maxX = generation.Max(cell => cell.X);
+            var maxY = generation.Max(cell => cell.Y);
+
             var dimentions = new
                 {
-                    startX = generation.Min(cell => cell.X) - 1,
-                    startY = generation.Min(cell => cell.Y) - 1,
-                    width = generation.Max(cell => cell.X) - generation.Min(cell => cell.X) + 3,
-                    height = generation.Max(cell => cell.Y) - generation.Min(cell => cell.Y) + 3
+                    startX  = minX - 1,
+                    startY  = minY - 1,
+                    width   = maxX - minX + 3,
+                    height  = maxY - minY + 3
                 };
 
             var result = new int[dimentions.width * dimentions.height];

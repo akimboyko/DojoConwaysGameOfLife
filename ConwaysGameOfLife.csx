@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using ConwaysGameOfLife;
 
-const int width = 20;
+const int width = 150;
 const int height = 20;
-const int aliveRatio = 3;
+const int aliveRatio = 4;
 
 var randomGenerator = new Random(DateTime.Now.Millisecond);
 
@@ -38,15 +38,15 @@ do
 			previousGeneration = currentGeneration;
 			currentGeneration = Generation.Next(previousGeneration);
 
-			string status;
-
 			var endOfGame = 
-				Generation.IsEndOfGame(currentGeneration, generationQueue, out status);
+				Generation.IsEndOfGame(currentGeneration, generationQueue);
 
-			if (endOfGame)
+			continueProcessing = endOfGame == ConwaysGameOfLife.GameStatus.Continue;
+
+			if (!continueProcessing)
 			{
 				continueProcessing = false;
-                Console.WriteLine("End of game: {0}", status);
+                Console.WriteLine("End of game: {0}", endOfGame);
 				break;
 			}
 		

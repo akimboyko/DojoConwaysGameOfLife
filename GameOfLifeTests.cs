@@ -249,10 +249,8 @@ namespace ConwaysGameOfLife
                                     0, 0, 0
                                 });
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentEmptyGeneration, previousAlmostDeadGenerations, out status);
+            var status = Generation.IsEndOfGame(currentEmptyGeneration, previousAlmostDeadGenerations);
 
-            isEndOfGame.Should().BeTrue();
             status.Should().Be(GameStatus.GenerationIsEmpty);
         }
 
@@ -281,10 +279,8 @@ namespace ConwaysGameOfLife
                                         0, 0, 0, 0
                                     });
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentBlockGeneration, previousBlockGenerations, out status);
+            var status = Generation.IsEndOfGame(currentBlockGeneration, previousBlockGenerations);
 
-            isEndOfGame.Should().BeTrue();
             status.Should().Be(GameStatus.StillLife);
         }
 
@@ -315,10 +311,8 @@ namespace ConwaysGameOfLife
                                         0, 0, 0, 0, 0, 0
                                     });
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentBeehiveGeneration, previousBeehiveGenerations, out status);
+            var status = Generation.IsEndOfGame(currentBeehiveGeneration, previousBeehiveGenerations);
 
-            isEndOfGame.Should().BeTrue();
             status.Should().Be(GameStatus.StillLife);
         }
 
@@ -345,10 +339,8 @@ namespace ConwaysGameOfLife
                                         0, 1, 0
                                     });
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousOscillatorGenerations, out status);
-
-            isEndOfGame.Should().BeFalse();
+            var status = Generation.IsEndOfGame(currentOscillatorGeneration, previousOscillatorGenerations);
+            
             status.Should().Be(GameStatus.Continue);
         }
 
@@ -391,10 +383,8 @@ namespace ConwaysGameOfLife
                     .Enqueue(currentOscillatorGeneration01)
                     .Enqueue(currentOscillatorGeneration02);
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration03, previousGenerations, out status);
+            var status = Generation.IsEndOfGame(currentOscillatorGeneration03, previousGenerations);
 
-            isEndOfGame.Should().BeTrue();
             status.Should().Be(GameStatus.OscillatorDetected);
         }
 
@@ -413,33 +403,9 @@ namespace ConwaysGameOfLife
                                         0, 1, 0
                                     });
 
-            GameStatus status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousNullGenerations, out status);
+            var status = Generation.IsEndOfGame(currentOscillatorGeneration, previousNullGenerations);
 
-            isEndOfGame.Should().BeFalse();
             status.Should().Be(GameStatus.Continue);
-        }
-
-        [Test]
-        public void GenerationFirstGeneration_IsEndOfGame_StringStatusContinue()
-        {
-            var previousNullGenerations = ImmutableQueue.Create<ImmutableHashSet<Cell>>();
-
-            var currentOscillatorGeneration =
-                    Generation.Init(
-                        width: 3, height: 3,
-                        cells: new[]
-                                    {
-                                        0, 1, 0,
-                                        0, 1, 0,
-                                        0, 1, 0
-                                    });
-
-            string status;
-            bool isEndOfGame = Generation.IsEndOfGame(currentOscillatorGeneration, previousNullGenerations, out status);
-
-            isEndOfGame.Should().BeFalse();
-            status.Should().Be("Continue");
         }
 
         [Test]
