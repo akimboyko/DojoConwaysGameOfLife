@@ -1,6 +1,9 @@
 Yet another Conway's Game of Life
 =================================
 
+Coderetreat 20130427
+--------------------
+
 Implementation details
 * Inspired by CodeRetreat session at Kiev 27th of April
 * All collections are immutable, implemented by`Microsoft.Bcl.Immutable`
