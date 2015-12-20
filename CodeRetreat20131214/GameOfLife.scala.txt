@@ -1,0 +1,96 @@
+package main.scala.com.coderetreat
+
+object GameOfLife {
+  // data structure
+  class Cell(x: Int, y: Int) {
+    val posX = x
+    val posY = y
+
+    override def toString = "Cell: " + x + "," + y
+
+    override def equals(that: Any) = {
+      that match {
+        case t: Cell => t.posX == x && t.posY == y
+        case _ => false
+      }
+    }
+
+    override def hashCode = x.hashCode() + y.hashCode()
+
+    def isNeighbour(cell: Cell): Boolean =
+      !equals(cell) && Math.abs(posX - cell.posX) <= 1 && Math.abs(posY - cell.posY) <= 1
+  }
+
+  // functions
+  def generate(cells: Set[Cell]): Set[Cell] = {
+    nextGenerationNeighbour(cells).filter(cell => {
+      val probability = neighboursCount(cell, cells)
+
+      probability == 3 || (probability == 2 && cells.contains(cell))
+    })
+  }
+
+  def neighboursCount(targetCell: Cell, cells: Set[Cell]): Int = {
+    cells.foldLeft(0)((neighbours, cell) => {
+      if(targetCell.isNeighbour(cell)) {
+        neighbours + 1
+      } else {
+        neighbours
+      }
+    })
+  }
+
+  def nextGenerationNeighbour(generation: Set[Cell]): Set[Cell] = {
+    val range = Set(-1, 0, +1)
+    val all = range.flatMap(x => range.map(y => (x, y)))
+
+    generation.flatMap(cell => all.map{ case (x, y) => new Cell(cell.posX + x, cell.posY + y) })
+  }
+
+  def toPrintableForm(generation: Set[Cell]): Array[String] = {
+    def min(n1: Int, n2: Int) = Math.min(n1, n2)
+    def max(n1: Int, n2: Int) = Math.max(n1, n2)
+    def abs(n1: Int) = Math.abs(n1)
+
+    val dimensions =
+      generation.foldLeft(None: Option[(Int, Int, Int, Int)])((dimensions, cell) => {
+        dimensions match {
+          case Some((minX, minY, maxX, maxY)) =>
+            Some(
+              min(cell.posX, minX), min(cell.posY, minY),
+              max(cell.posX, maxX), max(cell.posY, maxY))
+          case None =>
+            Some(cell.posX, cell.posY, cell.posX, cell.posY)
+        }
+      })
+
+    val (mX, mY, width, height) =
+      dimensions match {
+        case Some((minX, minY, maxX, maxY)) =>
+          (minX, minY, abs(maxX - minX) + 1, abs(maxY - minY) + 1)
+        case None => (0, 0, 1, 1)
+      }
+
+    val printable =
+      (0 until height).map(_ => (0 until width).map(_ => ' ').toArray).toArray
+
+    generation.foreach(cell =>
+      printable(cell.posY - mY)(cell.posX - mX) = '#'
+    )
+
+    printable.map(chars => new String(chars))
+  }
+
+  def main(args: Array[String]) {
+    val r = new scala.util.Random
+
+    var generation = (0 until 100).map(_ => new Cell(r.nextInt(20), r.nextInt(20))).toSet
+
+    while(!generation.isEmpty) {
+      toPrintableForm(generation).foreach(System.out.println)
+      System.out.println(new String((0 until 20).map(_ => '-').toArray))
+      generation = generate(generation)
+      Thread.sleep(1000)
+    }
+  }
+}

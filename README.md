@@ -11,3 +11,8 @@ Implementation details
  * Using of ex-`builder` concept like `ImmutableQueue.Create(collection)`
 * All game related algorithms are implemented using `LINQ to Objects`
 * Game itself is running from console using ScriptCS script
+
+Coderetreat 20131214
+--------------------
+
+Scala based implementation
